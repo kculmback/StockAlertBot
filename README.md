@@ -72,7 +72,7 @@ Currently, the following stores are supported:
     * ~~Tesco~~
     * ~~Argos~~
 * Add GUI - Make it easier to use 
-* Add Email and Maybe SMS Notifications
+* ~~Add Email~~ and Maybe SMS Notifications
 * ~~Fix~~ Find Bugs
 * ~~Initially create seperation between intervals for Amazon items~~
 * ~~Add a way to have independent delay timers for Amazon~~
