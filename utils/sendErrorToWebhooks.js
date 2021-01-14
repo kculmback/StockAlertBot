@@ -1,7 +1,9 @@
 import axios from 'axios';
 import moment from 'moment';
 import util from 'util';
-import { ERROR_WEBHOOK_URLS } from '../main.js';
+import config from './config.js';
+
+const { ERROR_WEBHOOK_URLS } = config;
 
 export default async function sendErrorToWebhooks(name, error) {
   const title = `Error for: ${name}`;

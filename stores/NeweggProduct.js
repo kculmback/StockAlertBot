@@ -1,18 +1,27 @@
 import convertPriceToNumber from '../utils/convertPriceToNumber.js';
-import DomParser from 'dom-parser'; // https://www.npmjs.com/package/dom-parser
-import storeFunctionWrapper from '../utils/storeFunctionWrapper.js';
+import Product from './Product.js';
 
-const store = 'Newegg';
+export default class NeweggProduct extends Product {
+  constructor(url, priceRequirement) {
+    const STORE = 'Newegg';
 
-export default async function newegg(url, interval, priceRequirement) {
-  storeFunctionWrapper(store, url, interval, (data) => {
-    const parser = new DomParser();
-    const doc = parser.parseFromString(data, 'text/html');
+    super({
+      store: STORE,
+      url,
+      priceRequirement,
+    });
+
+    this.initiate();
+  }
+
+  async checkInventory(data) {
+    const doc = this.getDoc(data);
+
     let title, inventory, image, price;
     let meetsPriceRequirement = true;
 
     // Check combo product
-    if (url.includes('ComboDealDetails')) {
+    if (this.url.includes('ComboDealDetails')) {
       title = doc.getElementsByTagName('title')[0].textContent;
       inventory = doc.getElementsByClassName('atnPrimary');
       image = 'https:' + doc.getElementById('mainSlide_0').getAttribute('src');
@@ -22,6 +31,7 @@ export default async function newegg(url, interval, priceRequirement) {
         .getElementsByClassName('product-title')[0]
         .innerHTML.trim()
         .slice(0, 150);
+
       inventory = doc.getElementsByClassName('btn btn-primary btn-wide');
       image = doc.getElementsByClassName('image_url');
       if (image.length > 0) image = image[0].textContent;
@@ -38,7 +48,7 @@ export default async function newegg(url, interval, priceRequirement) {
       inventory = inventory.toLowerCase();
     }
 
-    if (priceRequirement !== null && price > priceRequirement) {
+    if (this.priceRequirement !== null && price > this.priceRequirement) {
       meetsPriceRequirement = false;
     }
 
@@ -51,5 +61,5 @@ export default async function newegg(url, interval, priceRequirement) {
       image,
       price,
     };
-  });
+  }
 }

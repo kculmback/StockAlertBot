@@ -5,9 +5,9 @@ import moment from 'moment';
 
 export default async function writeErrorToFile(name, error) {
   fs.writeFile(
-    'log' + name + '.log',
+    'log' + name.replace(' ', '') + '.log',
     util.inspect(error),
-    function (e, result) {
+    function (e) {
       if (e) console.error('File write error: ', e);
     }
   );

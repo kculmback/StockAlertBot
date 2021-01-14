@@ -1,6 +1,8 @@
 import axios from 'axios';
 import moment from 'moment';
-import { WEBHOOK_URLS } from '../main.js';
+import config from './config.js';
+
+const { WEBHOOK_URLS } = config;
 
 export default async function sendAlertToWebhooks(
   product_url,
