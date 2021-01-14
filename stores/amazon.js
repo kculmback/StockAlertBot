@@ -115,7 +115,6 @@ export default async function amazon(
         open(url);
         sendAlertToWebhooks(url, title, image, store, price);
         urlOpened = true;
-        setTimeout(() => (urlOpened = false), 1000 * 60); // Open URL and post to webhook every minute
       }
       console.info(
         moment().format('LTS') + ': ***** In Stock at ' + store + ' *****: ',
