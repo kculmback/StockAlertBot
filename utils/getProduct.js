@@ -6,7 +6,8 @@ import moment from 'moment';
 export default async function getProduct(store, url) {
   const options = {};
 
-  const passUserAgent = store !== 'Best Buy';
+  const passUserAgent = true;
+  // const passUserAgent = store !== 'Best Buy';
 
   if (passUserAgent) {
     const userAgent =
