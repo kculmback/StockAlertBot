@@ -1,62 +1,61 @@
 {
-    "__URLS_comment": [
-        "All the products to check",
-        "Current domains supported: Amazon, AntOnline, Argos, Best Buy, Costco, Currys, Microcenter, Newegg, Target, Tesco",
-        "Format: https://www.ABC123.com/..."
+  "__URLS_comment": [
+    "All the products to check",
+    "Current domains supported: Amazon, AntOnline, Argos, Best Buy, Costco, Currys, Microcenter, Newegg, Target, Tesco",
+    "Format: https://www.ABC123.com/..."
+  ],
+  "URLS": [
+    "https://www.bestbuy.com/site/nvidia-geforce-rtx-3070-8gb-gddr6-pci-express-4-0-graphics-card-dark-platinum-and-black/6429442.p?skuId=6429442",
+    "https://www.bestbuy.com/site/nvidia-geforce-rtx-3080-10gb-gddr6x-pci-express-4-0-graphics-card-titanium-and-black/6429440.p?skuId=6429440",
+    "https://www.bestbuy.com/site/nvidia-geforce-rtx-3060-ti-8gb-gddr6-pci-express-4-0-graphics-card-steel-and-black/6439402.p?skuId=6439402",
+    "https://www.bestbuy.com/site/amd-ryzen-7-5800x-4th-gen-8-core-16-threads-unlocked-desktop-processor-without-cooler/6439000.p?skuId=6439000",
+    [
+      "https://www.amazon.com/AMD-Ryzen-5800X-16-Thread-Processor/dp/B0815XFSGK",
+      500
     ],
-    "URLS": [
-        "https://www.antonline.com/Sony/Electronics/Gaming_Devices/Gaming_Consoles/1413553",
-        "https://www.currys.co.uk/gbuk/gaming/console-gaming/consoles/microsoft-xbox-series-x-1-tb-10203371-pdt.html"
-    ],
+    ["https://www.newegg.com/amd-ryzen-7-5800x/p/N82E16819113665", 500]
+  ],
 
-    
-    "__INTERVAL_comment": [
-        "How often to check for products. Too often may be dangerous, especially for Amazon",
-        "Units: seconds, m: minutes, h: hours"
-    ],
-    "INTERVAL": {
-        "unit": "seconds",
-        "value": 10
-    },
+  "__INTERVAL_comment": [
+    "How often to check for products. Too often may be dangerous, especially for Amazon",
+    "Units: seconds, m: minutes, h: hours"
+  ],
+  "INTERVAL": {
+    "unit": "seconds",
+    "value": 10
+  },
 
+  "__OPEN_URL_comment": [
+    "Opens the product url in your default browser if set to true"
+  ],
+  "OPEN_URL": true,
 
-    "__OPEN_URL_comment": [
-        "Opens the product url in your default browser if set to true"
-    ],
-    "OPEN_URL": true,
+  "__ALARM_comment": ["Makes a sound when a product is in stock"],
+  "ALARM": false,
 
+  "__AMAZON_DELAY_comment": [
+    "IF YOU ENTERED A AMAZON PRODUCT",
+    "Separates the check between Amazon items by this value"
+  ],
+  "AMAZON_DELAY": 15,
 
-    "__ALARM_comment": [
-        "Makes a sound when a product is in stock"
-    ],
-    "ALARM": true,
+  "__TARGET_ZIP_CODE_comment": [
+    "IF YOU ENTERED A TARGET PRODUCT",
+    "Enter your zip code to search for a Target closest to you"
+  ],
+  "TARGET_ZIP_CODE": "99205",
 
+  "__TARGET_KEY_comment": [
+    "IF YOU ENTERED A TARGET PRODUCT AND YOU GET API KEY ERRORS",
+    "Enter the key for your session as described in the README"
+  ],
+  "TARGET_KEY": "ff457966e64d5e877fdbad070f276d18ecec4a01",
 
-    "__AMAZON_DELAY_comment": [
-        "IF YOU ENTERED A AMAZON PRODUCT",
-        "Separates the check between Amazon items by this value"
-    ],
-    "AMAZON_DELAY": 10,
-
-
-    "__TARGET_ZIP_CODE_comment": [
-        "IF YOU ENTERED A TARGET PRODUCT",
-        "Enter your zip code to search for a Target closest to you"
-    ],
-    "TARGET_ZIP_CODE": "90024",
-
-
-    "__TARGET_KEY_comment": [
-        "IF YOU ENTERED A TARGET PRODUCT AND YOU GET API KEY ERRORS",
-        "Enter the key for your session as described in the README"
-    ],
-    "TARGET_KEY": "ff457966e64d5e877fdbad070f276d18ecec4a01",
-
-
-    "__WEBHOOK_URLS_comment": [
-        "IF YOU WANT SLACK OR DISCORD WEBHOOKS"
-    ],
-    "WEBHOOK_URLS": [
-        ""
-    ]
+  "__WEBHOOK_URLS_comment": ["IF YOU WANT SLACK OR DISCORD WEBHOOKS"],
+  "WEBHOOK_URLS": [
+    "https://discord.com/api/webhooks/799009209173147649/vYgK5Zahr32dT-wByGTL8ivUzNU6TNmbIwsKpkED-4uVhCGVfpaRK6mIfi597LLdfXUg"
+  ],
+  "ERROR_WEBHOOK_URLS": [
+    "https://discord.com/api/webhooks/799009209173147649/vYgK5Zahr32dT-wByGTL8ivUzNU6TNmbIwsKpkED-4uVhCGVfpaRK6mIfi597LLdfXUg"
+  ]
 }
