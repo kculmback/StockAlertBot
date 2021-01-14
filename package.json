@@ -23,5 +23,13 @@
   "bugs": {
     "url": "https://github.com/PrinceS25/StockAlertBot/issues"
   },
-  "homepage": "https://github.com/PrinceS25/StockAlertBot#readme"
+  "homepage": "https://github.com/PrinceS25/StockAlertBot#readme",
+  "devDependencies": {
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.17.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.4.1",
+    "prettier": "^2.2.1"
+  }
 }
