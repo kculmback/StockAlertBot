@@ -1,117 +1,55 @@
-import { fileURLToPath } from 'url';
-import { ALARM, OPEN_URL, USER_AGENTS } from '../main.js';
-import threeBeeps from '../utils/beep.js';
-import sendAlertToWebhooks from '../utils/webhook.js';
-import logError from '../utils/logError.js';
 import convertPriceToNumber from '../utils/convertPriceToNumber.js';
-import axios from 'axios';
-import moment from 'moment';
 import DomParser from 'dom-parser'; // https://www.npmjs.com/package/dom-parser
-import open from 'open';
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  let interval = {
-    unit: 'seconds', // seconds, m: minutes, h: hours
-    value: 5,
-  };
-  let url = 'https://www.newegg.com/p/N82E16868110292';
-  newegg(url, interval);
-}
+import storeFunctionWrapper from '../utils/storeFunctionWrapper.js';
 
 const store = 'Newegg';
-let firstRun = new Set();
-let urlOpened = false;
+
 export default async function newegg(url, interval, priceRequirement) {
-  try {
-    let res = await axios
-      .get(url, {
-        headers: {
-          'User-Agent':
-            USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)],
-        },
-      })
-      .catch(async function (error) {
-        if (error.response && error.response.status == 503)
-          console.error(
-            moment().format('LTS') +
-              ': ' +
-              store +
-              ' 503 (service unavailable) Error. Interval possibly too low. Consider increasing interval rate.'
-          );
-        else logError(store, error);
-      });
+  storeFunctionWrapper(store, url, interval, (data) => {
+    const parser = new DomParser();
+    const doc = parser.parseFromString(data, 'text/html');
+    let title, inventory, image, price;
+    let meetsPriceRequirement = true;
 
-    if (res && res.status == 200) {
-      let parser = new DomParser();
-      let meetsPriceRequirement = true;
-      let doc, title, inventory, image, price;
+    // Check combo product
+    if (url.includes('ComboDealDetails')) {
+      title = doc.getElementsByTagName('title')[0].textContent;
+      inventory = doc.getElementsByClassName('atnPrimary');
+      image = 'https:' + doc.getElementById('mainSlide_0').getAttribute('src');
+    } else {
+      // Check normal product
+      title = doc
+        .getElementsByClassName('product-title')[0]
+        .innerHTML.trim()
+        .slice(0, 150);
+      inventory = doc.getElementsByClassName('btn btn-primary btn-wide');
+      image = doc.getElementsByClassName('image_url');
+      if (image.length > 0) image = image[0].textContent;
 
-      // Check combo product
-      if (url.includes('ComboDealDetails')) {
-        doc = parser.parseFromString(res.data, 'text/html');
-        title = doc.getElementsByTagName('title')[0].textContent;
-        inventory = doc.getElementsByClassName('atnPrimary');
-        image =
-          'https:' + doc.getElementById('mainSlide_0').getAttribute('src');
-      } else {
-        // Check normal product
-        doc = parser.parseFromString(res.data, 'text/html');
-        title = doc
-          .getElementsByClassName('product-title')[0]
-          .innerHTML.trim()
-          .slice(0, 150);
-        inventory = doc.getElementsByClassName('btn btn-primary btn-wide');
-        image = doc.getElementsByClassName('image_url');
-        if (image.length > 0) image = image[0].textContent;
-
-        const productPrice = doc
-          .getElementsByClassName('product-buy-box')[0]
-          .getElementsByClassName('product-price')[0]
-          .getElementsByClassName('price-current')[0].textContent;
-        price = convertPriceToNumber(productPrice);
-      }
-
-      if (inventory.length > 0) {
-        inventory = inventory[0].firstChild.textContent;
-        inventory = inventory.toLowerCase();
-      }
-
-      if (priceRequirement !== null && price > priceRequirement) {
-        meetsPriceRequirement = false;
-      }
-
-      const isInStock =
-        inventory && inventory == 'add to cart ' && meetsPriceRequirement;
-
-      if (!isInStock && !firstRun.has(url)) {
-        console.info(
-          moment().format('LTS') +
-            ': "' +
-            title +
-            '" not in stock at ' +
-            store +
-            '.' +
-            ' Will keep retrying in background every',
-          interval.value,
-          interval.unit
-        );
-        firstRun.add(url);
-      } else if (isInStock) {
-        if (ALARM) threeBeeps();
-        if (OPEN_URL && !urlOpened) {
-          open(url);
-          urlOpened = true;
-          sendAlertToWebhooks(url, title, image, store, price);
-          setTimeout(() => (urlOpened = false), 1000 * 60); // Open URL and post to webhook every minute
-        }
-        console.info(
-          moment().format('LTS') + ': ***** In Stock at ' + store + ' *****: ',
-          title
-        );
-        console.info(url);
-      }
+      const productPrice = doc
+        .getElementsByClassName('product-buy-box')[0]
+        .getElementsByClassName('product-price')[0]
+        .getElementsByClassName('price-current')[0].textContent;
+      price = convertPriceToNumber(productPrice);
     }
-  } catch (e) {
-    logError(store, e);
-  }
+
+    if (inventory.length > 0) {
+      inventory = inventory[0].firstChild.textContent;
+      inventory = inventory.toLowerCase();
+    }
+
+    if (priceRequirement !== null && price > priceRequirement) {
+      meetsPriceRequirement = false;
+    }
+
+    const isInStock =
+      inventory && inventory == 'add to cart ' && meetsPriceRequirement;
+
+    return {
+      isInStock,
+      title,
+      image,
+      price,
+    };
+  });
 }

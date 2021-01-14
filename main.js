@@ -27,20 +27,6 @@ export var {
   ERROR_WEBHOOK_URLS,
 } = require('./config.json');
 
-const ADDITIONAL_URLS = [
-  // "https://www.amazon.com/PlayStation-5-Console/dp/B08FC5L3RG",
-  // "https://www.amazon.com/gp/product/B08164VTWH/",
-  // "https://www.argos.co.uk/product/8349000",
-  // "https://www.bestbuy.com/site/amd-ryzen-9-5900x-4th-gen-12-core-24-threads-unlocked-desktop-processor-without-cooler/6438942.p?skuId=6438942",
-  // "https://www.costco.com/sony-playstation-5-gaming-console-bundle.product.100691489.html",
-  // "https://www.microcenter.com/product/630283/Ryzen_9_5900X_Vermeer_37GHz_12-Core_AM4_Boxed_Processor",
-  // "https://www.newegg.com/amd-ryzen-9-5900x/p/N82E16819113664?Item=N82E16819113664",
-  // "https://www.target.com/p/playstation-5-console/-/A-81114595",
-  // "https://www.tescopreorders.com/uk/ps5",
-  // "https://www.tesco.com/groceries/en-GB/products/306276176",
-];
-if (ADDITIONAL_URLS.length > 0) URLS = URLS.concat(ADDITIONAL_URLS);
-
 // Runs main only if this file is executed
 if (process.argv[1] === fileURLToPath(import.meta.url)) main();
 
@@ -51,45 +37,31 @@ function getDomainName(url) {
   return host[1];
 }
 
-// Calls the given store function with the set interval
-async function checkStore(storeFunc, url, priceRequirement) {
-  switch (INTERVAL.unit) {
-    case 'seconds':
-      setInterval(
-        storeFunc,
-        INTERVAL.value * 1000,
-        url,
-        INTERVAL,
-        priceRequirement
-      );
-      break;
+function getTimeout(value, unit) {
+  let timeout = value * 1000;
 
+  switch (unit) {
     case 'minutes':
-      setInterval(
-        storeFunc,
-        INTERVAL.value * 1000 * 60,
-        url,
-        INTERVAL,
-        priceRequirement
-      );
+      timeout = timeout * 60;
       break;
-
     case 'hours':
-      setInterval(
-        storeFunc,
-        INTERVAL.value * 1000 * 60 * 60,
-        url,
-        INTERVAL,
-        priceRequirement
-      );
+      timeout = timeout * 60 * 60;
       break;
   }
+
+  return timeout;
+}
+
+// Calls the given store function with the set interval
+async function checkStore(storeFunc, url, priceRequirement) {
+  const timeout = getTimeout(INTERVAL.value, INTERVAL.unit);
+  setInterval(storeFunc, timeout, url, INTERVAL, priceRequirement);
 }
 
 // Same as checkStore() but adds dynamic delay to interval to help avoid 503 error
 // Takes an item with url, interval, firstRun, and storeFunc properties (see amazonItem() below for an example)
 async function checkStoreWithDelay(item) {
-  let timer = (firstRun) => {
+  const timer = (firstRun) => {
     return new Promise(function (resolve) {
       item.storeFunc(
         item.url,
@@ -103,39 +75,26 @@ async function checkStoreWithDelay(item) {
     });
   };
 
-  timer(item.firstRun).then(async function ({ interval, urlOpened }) {
-    if (item.interval.value != interval) {
-      item.firstRun = true;
-      item.interval.value = interval;
-    } else item.firstRun = false;
+  const { interval, urlOpened } = await timer(item.firstRun);
 
-    if (OPEN_URL && urlOpened && urlOpened != item.urlOpened) {
-      item.urlOpened = true;
-      setTimeout(() => (item.urlOpened = false), 1000 * 60); // Open URL and post to webhook every minute
-    }
+  if (item.interval.value !== interval) {
+    item.firstRun = true;
+    item.interval.value = interval;
+  } else {
+    item.firstRun = false;
+  }
 
-    switch (item.interval.unit) {
-      case 'seconds':
-        setTimeout(checkStoreWithDelay, item.interval.value * 1000, item);
-        break;
+  if (OPEN_URL && urlOpened && urlOpened !== item.urlOpened) {
+    item.urlOpened = true;
+    setTimeout(() => (item.urlOpened = false), 1000 * 60); // Open URL and post to webhook every minute
+  }
 
-      case 'minutes':
-        setTimeout(checkStoreWithDelay, item.interval.value * 1000 * 60, item);
-        break;
-
-      case 'hours':
-        setTimeout(
-          checkStoreWithDelay,
-          item.interval.value * 1000 * 60 * 60,
-          item
-        );
-        break;
-    }
-  });
+  const timeout = getTimeout(item.interval.value, item.interval.unit);
+  setTimeout(checkStoreWithDelay, timeout, item);
 }
 
 function main() {
-  let amazonItems = [];
+  const amazonItems = [];
   function amazonItem(url, price) {
     this.url = url;
     this.price = price;
@@ -208,26 +167,12 @@ function main() {
     }
   });
 
-  if (amazonItems.length > 0)
+  if (amazonItems.length > 0) {
     amazonItems.forEach((item, idx) => {
-      switch (INTERVAL.unit) {
-        case 'seconds':
-          setTimeout(checkStoreWithDelay, AMAZON_DELAY * 1000 * idx, item);
-          break;
-
-        case 'minutes':
-          setTimeout(checkStoreWithDelay, AMAZON_DELAY * 1000 * 60 * idx, item);
-          break;
-
-        case 'hours':
-          setTimeout(
-            checkStoreWithDelay,
-            AMAZON_DELAY * 1000 * 60 * 60 * idx,
-            item
-          );
-          break;
-      }
+      const timeout = getTimeout(AMAZON_DELAY * idx, INTERVAL.unit);
+      setTimeout(checkStoreWithDelay, timeout, item);
     });
+  }
 }
 
 export const USER_AGENTS = [

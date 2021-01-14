@@ -5,7 +5,7 @@ import { ERROR_WEBHOOK_URLS } from '../main.js';
 
 export default async function sendErrorToWebhooks(name, error) {
   const title = `Error for: ${name}`;
-  const content = util.inspect(error);
+  const content = util.inspect(error).slice(0, 2000);
   const thumbnail = 'https://s2.svgbox.net/materialui.svg?ic=error_outline';
   const footerText = `${name} Error Bot | ${moment().format(
     'MMMM Do YYYY - h:mm:ss A'
